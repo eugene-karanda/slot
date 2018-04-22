@@ -1,0 +1,15 @@
+package org.overmind.slot.engine
+
+class CircularList<out T>(private val list: List<T>) : List<T> by list {
+
+    override fun get(index: Int): T =
+            list[index.safely()]
+
+    // Other overrides removed for brevity.
+
+    private fun Int.safely(): Int =
+            if (this < 0) (this % size + size) % size
+            else this % size
+}
+
+fun <T> List<T>.circular(): CircularList<T> = CircularList(this)
