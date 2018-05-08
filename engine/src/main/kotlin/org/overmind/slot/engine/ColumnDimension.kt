@@ -1,5 +1,3 @@
 package org.overmind.slot.engine
 
-data class ColumnDimension(
-        val height: Int
-)
+data class ColumnDimension(val height: Int)

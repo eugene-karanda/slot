@@ -12,34 +12,42 @@ import io.mockk.verifyAll
 
 object ReelSpinerDefaultSpec : Spek({
     val dimension = ColumnDimension(3)
+    val reel = SymbolStrip((0 until 5).toList())
 
     given("a ReelSpinerDefault") {
         val randomManager = mockk<RandomManager>()
         val reelSpinerDefault = ReelSpinerDefault(randomManager)
 
-        on("spin") {
-            val stopPosition = 0
-            val reel = SymbolStrip((0..5).toList())
+        val testCases = listOf(
+                TestCase("column within reel", 0, SymbolStrip(listOf(0, 1, 2))),
+                TestCase("column out of reel", 4, SymbolStrip(listOf(4, 0, 1)))
+        )
 
-            every {
-                randomManager.randomInt(reel.length)
-            } returns stopPosition
+        testCases.forEach { (description, stopPosition, expectedStrip) ->
+            on(description) {
+                every {
+                    randomManager.randomInt(reel.length)
+                } returns stopPosition
 
-            val spinReelResult = reelSpinerDefault.spin(reel, dimension)
+                val spinReelResult = reelSpinerDefault.spin(reel, dimension)
 
-            it("should something") {
-                assert(spinReelResult)
-                        .isEqualTo(
-                                SpinReelResult(
-                                        stopPosition,
-                                        SymbolStrip(listOf(0, 1, 2))
-                                )
-                        )
-            }
+                it("return column") {
+                    assert(spinReelResult)
+                            .isEqualTo(
+                                    SpinReelResult(stopPosition, expectedStrip)
+                            )
+                }
 
-            verifyAll {
-                randomManager.randomInt(reel.length)
+                verifyAll {
+                    randomManager.randomInt(reel.length)
+                }
             }
         }
     }
-})
+}) {
+    private data class TestCase(
+            val description: String,
+            val stopPosition: Int,
+            val expectedStrip: SymbolStrip
+    )
+}
